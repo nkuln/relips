@@ -1,0 +1,6 @@
+Abstract
+
+NATTHAWUT KULNIRUNDORN: AUTOMATIC GENERATION OF KARAOKE-GAME STAGES FROM AUDIO FILES. 
+SENIOR PROJECT ADVISOR: PROF. BOONSERM KIJSIRIKUL, Ph.D., XX pp.
+
+The objectives of this project are to study and to conduct a research to find a method for automatic generation of karaoke-game stages from audio files, to develop a prototype of karaoke-game stages generator that implements the method proposed, and to develop a prototype of karaoke-game program which is used to test the stages generated from the previous program. There are many existing research papers in the topic of “vocal pitch detection in polyphonic audio files”. This project presents a new method which can be implemented easily. The method assumes that the input audio file has two channels, and the singing voices in both channels are very close in term of magnitude at any given time. It is found that the result from this vocal pitch detection method is not as accurate as ones proposed in existing papers. However, it is adequate for entertainment applications and it is easy to understand and to implement. In addition, the karaoke-game prototype can entertain its users and can be used as replacements for commercial products.
