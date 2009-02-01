@@ -3,7 +3,7 @@
 
 using namespace std;
 
-class Note
+public class Note
 {
 public:
 	Note(void);
