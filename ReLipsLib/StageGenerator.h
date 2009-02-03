@@ -4,6 +4,10 @@
 #include "GenerationProgressArgs.h"
 #include "Fragment.h"
 
+#define WINDOW_SIZE 8192
+#define SAMPLE_RATE 44100
+#define HOP_SIZE 200
+
 using namespace System;
 using namespace System::Threading;
 

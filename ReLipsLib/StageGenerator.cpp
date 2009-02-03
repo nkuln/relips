@@ -4,9 +4,6 @@
 #include "Note.h"
 #include "Fragment.h"
 
-#define WINDOW_SIZE 8192
-#define SAMPLE_RATE 44100
-
 StageGenerator::StageGenerator(void)
 :m_inOperation(false)
 {
@@ -86,11 +83,24 @@ void StageGenerator::GetFFTAtPosition(HSTREAM &voc_stream, float voc_fft[8192], 
 		throw gcnew Exception("Cannot set channel position. BASS error code:" + error);
 	}
 	
-	if(WINDOW_SIZE != 8192){
+	DWORD fft_flag = 0;
+	if(WINDOW_SIZE == 8192){
+		fft_flag = BASS_DATA_FFT8192;
+	}else if(WINDOW_SIZE == 4096){
+		fft_flag = BASS_DATA_FFT4096;
+	}else if(WINDOW_SIZE == 2048){
+		fft_flag = BASS_DATA_FFT2048;
+	}else if(WINDOW_SIZE == 1024){
+		fft_flag = BASS_DATA_FFT1024;
+	}else if(WINDOW_SIZE == 512){
+		fft_flag = BASS_DATA_FFT512;
+	}else if(WINDOW_SIZE == 256){
+		fft_flag = BASS_DATA_FFT256;
+	}else{
 		throw gcnew Exception("Window Size not supported");
 	}
 
-	if(-1 == BASS_ChannelGetData(voc_stream, voc_fft, BASS_DATA_FFT8192 | BASS_DATA_FFT_NOWINDOW))
+	if(-1 == BASS_ChannelGetData(voc_stream, voc_fft, fft_flag | BASS_DATA_FFT_NOWINDOW))
 	{
 		int error = BASS_ErrorGetCode();
 		throw gcnew Exception("Cannot get channel data. BASS error code:" + error);
