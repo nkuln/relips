@@ -3,8 +3,8 @@
 #include "Note.h"
 #include "ResultGameState.h"
 #include "ResultStateParam.h"
-#define DEFAULT_RELIPS	"mile.relips" 
-#define DEFAULT_PLAY	"mile.mp3"
+#define DEFAULT_RELIPS	"milepiano.relips" 
+#define DEFAULT_PLAY	"milepiano.mp3"
 #define CUSTOM_SHININESS	1
 #define CUSTOM_DIFFUSE		2
 #define CUSTOM_SPECULAR		3
