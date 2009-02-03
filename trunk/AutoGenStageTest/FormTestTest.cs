@@ -86,7 +86,7 @@ namespace AutoGenStageTest
         {
             FormTest target = new FormTest();
             string s = @"D:\RelipsProject\AutoGenStageTest\";
-            double res = target.Compare(s+"test3.relips", s+"test1.relips");
+            double res = target.CompareExact(s+"test3.relips", s+"test1.relips");
             Assert.AreEqual(1.0,res);
         }
 

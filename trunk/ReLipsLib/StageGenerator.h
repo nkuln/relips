@@ -34,18 +34,16 @@ private:
 	Thread^ m_thread;
 	bool m_inOperation;
 
-	bool DoGenerate(char* musicFile, char* outFile);
 	double MedianOfFive(double n1, double n2, double n3, double n4, double n5);
-	int GetTrackLength(int numFrames);
-	void SubstractSpectrum(int numFrames, double **voc, double **novoc);
-	void PaintSpectrum(int numFrames, double **data, const char *outname);
-	void PaintSpectrum(int numFrames, int height, double **data, const char *outname);
-	double** ApplyVMedianFilter(int numFrames, double **data);
-	double** ApplyMedianFilter(int numFrames, double **data);
-	double** BuildSpectrum(int numFrames, int sampleRate, int chans, fftw_complex *in[2]);
-	double** QuantizeSpectrum(int numFrames, int sampleRate, double** voc);
-	void CreateOutputFile(char* outFile, int numFrames, double** qspec);
+	
 	bool DoGenerate2(char *musicFile, char* outFile);
+
+	void WriteOutputFile(char *outFile, bool *pitches, int pitches_len);
+
+	void FilterOutShortNotes(bool *pitches, int pitches_len, double min_sec);
+
+	void PaintPitchesToFile(QWORD &len, bool *pitches);
+
 	void Normalize(float voc_fft[WINDOW_SIZE]);
 
 	int MaxIndex(float voc_fft[WINDOW_SIZE]);
