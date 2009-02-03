@@ -23,6 +23,7 @@ namespace AutoGenStage
             if (dgTest.ShowDialog() == DialogResult.OK)
             {
                 OpenFileDialog dgCorrect = new OpenFileDialog();
+                dgCorrect.Title = "Select Correct File";
                 if (dgCorrect.ShowDialog() == DialogResult.OK)
                 {
                     try
@@ -31,7 +32,10 @@ namespace AutoGenStage
                         label1.Text = "Exact Accuracy = " + exact * 100.0 + "%" + Environment.NewLine;
 
                         double cover = CompareCover(dgTest.FileName, dgCorrect.FileName);
-                        label1.Text += "Cover Accuracy = " + cover * 100.0 + "%";
+                        label1.Text += "Cover Accuracy = " + cover * 100.0 + "%" + Environment.NewLine; ;
+
+                        double coverLoose = CompareCoverLoose(dgTest.FileName, dgCorrect.FileName);
+                        label1.Text += "Cover (Loose) Accuracy = " + coverLoose * 100.0 + "%";
                     }
                     catch (Exception ex)
                     {
@@ -142,6 +146,74 @@ namespace AutoGenStage
                     divider += keyframes[i + 1] - keyframes[i];
 
                     if (m == n)
+                        sum += keyframes[i + 1] - keyframes[i];
+                }
+            }
+
+            double acc = sum / (1.0 * divider);
+            return acc;
+        }
+
+        public double CompareCoverLoose(string fileTest, string fileCorrect)
+        {
+            List<Fragment> test = FragmentListFromFile(fileTest);
+            List<Fragment> correct = FragmentListFromFile(fileCorrect);
+
+            // assume no overlapping between fragment within test and correct
+            List<int> keyframes = new List<int>();
+            int maxTest = int.MinValue, maxCorrect = int.MinValue;
+            foreach (Fragment a in test)
+            {
+                if (!keyframes.Contains(a.Start))
+                    keyframes.Add(a.Start);
+                if (!keyframes.Contains(a.End))
+                    keyframes.Add(a.End);
+                if (a.End > maxTest) maxTest = a.End;
+            }
+            foreach (Fragment a in correct)
+            {
+                if (!keyframes.Contains(a.Start))
+                    keyframes.Add(a.Start);
+                if (!keyframes.Contains(a.End))
+                    keyframes.Add(a.End);
+                if (a.End > maxCorrect) maxCorrect = a.End;
+            }
+
+            int cutPoint = Math.Min(maxCorrect, maxTest);
+
+            keyframes.Sort();
+
+            keyframes.RemoveAll(delegate(int a) { return a > cutPoint; });
+
+            if (keyframes.Count < 2)
+                return 0.0;
+
+            // compare
+
+            int sum = 0;
+            int divider = 0;
+
+            for (int i = 0; i < keyframes.Count - 1; i++)
+            {
+                int m = GetNote(test, keyframes[i], keyframes[i + 1]);
+                int n = GetNote(correct, keyframes[i], keyframes[i + 1]);
+
+                if (n != -1)
+                {
+                    // singing voice
+                    divider += keyframes[i + 1] - keyframes[i];
+
+                    int p = m, q = m;
+
+                    if (p == 5) p = 7;
+                    else if (p == 13) p = 1;
+                    else p++;
+
+                    if (q == 7) q = 5;
+                    else if (q == 1) q = 13;
+                    else q--;
+                    
+                    if (m == n || q == n || p == n)
                         sum += keyframes[i + 1] - keyframes[i];
                 }
             }
