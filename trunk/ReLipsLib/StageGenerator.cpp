@@ -25,7 +25,7 @@ bool StageGenerator::CreateStageFromFile( String^ musicFile, String^ outFile )
 		char* ofile = (char*)(void*)Marshal::StringToHGlobalAnsi(outFile);
 		//////////////////////////////////////////////////////////////////////////
 
-		DoGenerate2(mfile,ofile);
+		DoGenerate(mfile,ofile);
 
 		//////////////////////////////////////////////////////////////////////////
 		Marshal::FreeHGlobal((System::IntPtr)(void*)mfile);
@@ -364,7 +364,9 @@ void StageGenerator::WriteOutputFile(char *outFile, bool *pitches, int pitches_l
 	for(deque<Fragment *>::iterator i = q.begin() ; i != q.end() ; i++)
 		delete *i;
 }
-bool StageGenerator::DoGenerate2(char *musicFile, char* outFile){
+bool StageGenerator::DoGenerate(char *musicFile, char* outFile){
+
+#define GEN_BITMAP 0 // To generate bitmap of spectrum or not
 
 	InitializeBASS();
 
@@ -406,7 +408,7 @@ bool StageGenerator::DoGenerate2(char *musicFile, char* outFile){
 		pitches[i] = false;
 	}
 
-#if 0
+#if GEN_BITMAP
 	BMP spec_voc, spec_novoc;
 	spec_voc.SetBitDepth(8);
 	spec_voc.SetSize(len/HOP_SIZE + 1, WINDOW_SIZE/3);
@@ -447,7 +449,7 @@ bool StageGenerator::DoGenerate2(char *musicFile, char* outFile){
 		int i_start = floor(80.0 * WINDOW_SIZE / SAMPLE_RATE);
 		int i_end = ceil(1000.0 * WINDOW_SIZE / SAMPLE_RATE);
 
-#if 0
+#if GEN_BITMAP
 		// Paint Voc
 		for(int i = i_start ; i < i_end ; i++){
 			int col = (int)(255.0 * voc_fft[i]);
@@ -466,12 +468,14 @@ bool StageGenerator::DoGenerate2(char *musicFile, char* outFile){
 			spec_novoc(pos/HOP_SIZE, i)->Green = 0xFF - (col & 0xFF);
 		}
 #endif
+
+#if 1
 		// subtract HPS spectrum
 		for(int i = 0 ; i < WINDOW_SIZE/3 ; i++){
 			voc_fft[i] -= novoc_fft[i];
 			if(voc_fft[i] < 0) voc_fft[i] = 0.0f;
 		}
-
+#endif
 		// median smoothing
 
 		// TODO:
@@ -518,7 +522,7 @@ bool StageGenerator::DoGenerate2(char *musicFile, char* outFile){
 		cout << "Processed " << pos << endl;
 	}
 
-#if 0
+#if GEN_BITMAP
 	spec_voc.SetBitDepth(24);
 	spec_voc.WriteToFile("spec_voc_.bmp");
 

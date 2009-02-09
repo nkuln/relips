@@ -2,11 +2,12 @@
 #include "PlayStateParam.h"
 
 PlayStateParam::PlayStateParam(void)
-	: difficulity(0), filename(NULL)
+	: difficulity(0)
 {
 
 }
 
 PlayStateParam::~PlayStateParam(void)
 {
+
 }

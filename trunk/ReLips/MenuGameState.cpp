@@ -1,6 +1,9 @@
 #include "stdafx.h"
 #include "PlayStateParam.h"
-#include "MenuGameState.h"
+#include "MenuGameState.h"         
+
+using namespace std;
+namespace fs = boost::filesystem;
 
 MenuGameState::MenuGameState( char *name )
 	: GameState(name), 
@@ -10,7 +13,8 @@ MenuGameState::MenuGameState( char *name )
 	iconWidth(100), 
 	padding(50), 
 	iconCount(0), 
-	currentIndex(0)
+	currentIndex(0),
+	currentFile(0)
 {
 
 }
@@ -62,10 +66,27 @@ void MenuGameState::Initialize()
 	m_camera->lookAt(Vector3(0,0,0));
 
 	GETOVERLAY(menuOverlay,"MenuOverlay");
-	// menuOverlay->show();
+	menuOverlay->show();
 
 	CreateMenuItems();
 
+	ShowAdditionalMenu();
+	UpdateCurrentFileText();
+}
+
+void MenuGameState::ShowAdditionalMenu()
+{
+	// Show Additional Menu
+	GETOVERLAY(newov, "MenuOverlay");
+	//GETOVERLAYELEM(debugText,"DebugText1");
+	if(currentIndex == 0){
+		// Start Game Menu
+		//debugText->show();
+		newov->show();
+	}else{
+		//debugText->hide();
+		newov->hide();
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -87,24 +108,46 @@ bool MenuGameState::KeyPressed( const OIS::KeyEvent &arg )
 				{
 					if(currentIndex == 0){
 						// Change to PlayState
-						m_reqChangeState = true;
-						m_changeToStateName = "PlayState";
 
-						PlayStateParam *p = new PlayStateParam();
-						p->Difficulity(1);
-						p->Filename("hello-foo-bar.mp3");
-						m_paramToPass = p;
+						// search for WAV or MP3 in path with the same name as relips file
+
+						string mp3name = filelist[currentFile].stem() + ".mp3";
+						string wavname = filelist[currentFile].stem() + ".wav";
+
+						string audioname = "";
+
+						fs::path full_path( fs::initial_path<fs::path>() );
+
+						fs::directory_iterator end_itr; // default construction yields past-the-end
+
+						for ( fs::directory_iterator itr( full_path );
+							itr != end_itr;
+							++itr )
+						{
+							if(!is_directory(itr->status())){
+								if(itr->path().leaf().compare(mp3name) == 0){
+									audioname = itr->path().leaf();
+									break;
+								}else if(itr->path().leaf().compare(wavname) == 0){
+									audioname = itr->path().leaf();
+									break;
+								}
+							}
+						}
+
+						if(audioname != ""){
+
+							m_reqChangeState = true;
+							m_changeToStateName = "PlayState";
+
+							PlayStateParam* param = new PlayStateParam();
+							param->Filename(filelist[currentFile].leaf());
+							param->MusicFilename(audioname);
+							m_paramToPass = param;
+						}
 					}else if(currentIndex == 1){
 						stringstream s;
 						vector<wstring> files;
-
-						if (ListFiles(L"C:\\", L"*", files)) {
-							for (vector<wstring>::iterator it = files.begin(); 
-								it != files.end(); 
-								++it) {
-									s << it->c_str() << endl;
-							}
-						}
 
 						SetDebugText(s.str().c_str());
 					}else if(currentIndex == 2){
@@ -120,28 +163,49 @@ bool MenuGameState::KeyPressed( const OIS::KeyEvent &arg )
 				}
 
 			case OIS::KC_RIGHT:
+			{
 				if(++currentIndex < iconCount){
 					isBetweenMove = true;
 					locationToGo = (menuNode->getPosition() - Vector3(iconWidth + padding,0,0)).x;
 				}else{
 					currentIndex = iconCount - 1;
 				}
-
+				
+				ShowAdditionalMenu();
 				break;
-
+			}
 			case OIS::KC_LEFT:
+			{
 				if(--currentIndex >= 0){
 					isBetweenMove = true;
 					locationToGo = (menuNode->getPosition() + Vector3(iconWidth + padding,0,0)).x;
-					break;
 				}else{
 					currentIndex = 0;
 				}
 
+				ShowAdditionalMenu();
+
+				break;
+			}
+			case OIS::KC_UP:
+				if(currentFile > 0){
+					currentFile--;
+				}
+				UpdateCurrentFileText();
+				break;
+			case OIS::KC_DOWN:
+				if(currentFile < filelist.size() - 1){
+					currentFile++;
+				}
+				UpdateCurrentFileText();
 				break;
 		}
 	}
 	return true;
+}
+
+void MenuGameState::UpdateCurrentFileText(){
+	SetDebugText(filelist[currentFile].stem().c_str());
 }
 
 bool MenuGameState::KeyReleased( const OIS::KeyEvent &arg )
@@ -183,6 +247,26 @@ void MenuGameState::CleanUp()
 MenuGameState *MenuGameState::CreateInstance()
 {
 	return new MenuGameState("MenuGameState");
+}
+
+void MenuGameState::ReadReLipsFile()
+{
+	// Read ReLips file
+
+	fs::path full_path( fs::initial_path<fs::path>() );
+
+	fs::directory_iterator end_itr; // default construction yields past-the-end
+
+	for ( fs::directory_iterator itr( full_path );
+		itr != end_itr;
+		++itr )
+	{
+		if(!is_directory(itr->status()) &&
+			itr->path().extension().compare(".relips") == 0)
+		{
+			filelist.push_back(itr->path());
+		}
+	}
 }
 
 void MenuGameState::CreateMenuItems()
@@ -282,49 +366,9 @@ void MenuGameState::CreateMenuItems()
 		n->setPosition(Vector3(i * (iconWidth + padding),0,0));
 	}
 
+	ReadReLipsFile();
+
 	//SceneNode *root = m_sceneMgr->getRootSceneNode();
 	//root->addChild(menuNode);
 }
 
-bool MenuGameState::ListFiles(wstring path, wstring mask, vector<wstring>& files) {
-	HANDLE hFind = INVALID_HANDLE_VALUE;
-	WIN32_FIND_DATA ffd;
-	wstring spec;
-	stack<wstring> directories;
-
-	directories.push(path);
-	files.clear();
-
-	while (!directories.empty()) {
-		path = directories.top();
-		spec = path + L"\\" + mask;
-		directories.pop();
-
-		hFind = FindFirstFile(spec.c_str(), &ffd);
-		if (hFind == INVALID_HANDLE_VALUE)  {
-			return false;
-		} 
-
-		do {
-			if (wcscmp(ffd.cFileName, L".") != 0 && 
-				wcscmp(ffd.cFileName, L"..") != 0) {
-					if (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
-						directories.push(path + L"\\" + ffd.cFileName);
-					}
-					else {
-						files.push_back(path + L"\\" + ffd.cFileName);
-					}
-			}
-		} while (FindNextFile(hFind, &ffd) != 0);
-
-		if (GetLastError() != ERROR_NO_MORE_FILES) {
-			FindClose(hFind);
-			return false;
-		}
-
-		FindClose(hFind);
-		hFind = INVALID_HANDLE_VALUE;
-	}
-
-	return true;
-}
