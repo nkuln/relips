@@ -3,9 +3,12 @@
 #include "ObjectTextDisplay.h"
 #include "ReLipsUtil.h"
 #include "stdafx.h"
+#include "boost/filesystem.hpp"
+#include <iostream>
 
 using namespace Ogre;
 using namespace std;
+namespace fs = boost::filesystem;
 
 class MenuGameState :
 	public GameState
@@ -27,11 +30,15 @@ protected:
 	virtual void Initialize();
 
 	void CreateMenuItems();
+	void ReadReLipsFile();
+
+	void ShowAdditionalMenu();
+
 	virtual void CleanUp();
 	void CreateBackgroundKnot();
 	void SetDebugText(const char* s);
 	void SetDebugText(const char* s, int x);
-	bool ListFiles(wstring path, wstring mask, vector<wstring>& files);
+	void UpdateCurrentFileText();
 	bool isBetweenMove;
 	int locationToGo;
 	float speed;
@@ -39,6 +46,10 @@ protected:
 	int iconCount;
 	int currentIndex;
 	int padding;
+
+	int currentFile;
+
 	vector<SceneNode *> list;
 	vector<ObjectTextDisplay *> textList;
+	vector<fs::path> filelist;
 };

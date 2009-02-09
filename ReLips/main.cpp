@@ -167,14 +167,17 @@ private:
 
 	void setupRenderSystem()
 	{
-		//if (!mRoot->restoreConfig() && !mRoot->showConfigDialog())
-		//	throw Exception(52, "User canceled the config dialog!", "Application::setupRenderSystem()");
-
+		// Show config dialog or just fix the settings
+#if 1
+		if (!mRoot->showConfigDialog()) // .. !mRoot->restoreConfig() && .. 
+			throw Exception(52, "User canceled the config dialog!", "Application::setupRenderSystem()");
+#else
 		RenderSystem *rs = mRoot->getRenderSystemByName("Direct3D9 Rendering Subsystem");
 											 // or use "OpenGL Rendering Subsystem"
 		mRoot->setRenderSystem(rs);
 		rs->setConfigOption("Full Screen", "No");
 		rs->setConfigOption("Video Mode", "800 x 600 @ 32-bit colour");
+#endif
 
 	}
 

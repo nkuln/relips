@@ -8,7 +8,7 @@ using namespace std;
 class Stage
 {
 public:
-	Stage(char *filename);
+	Stage(const char *filename);
 	~Stage(void);
 
 	void MockStage();
@@ -20,7 +20,7 @@ public:
 private:
 	deque<Fragment *> *m_frags;
 
-	void LoadFromFile(char* filename);
+	void LoadFromFile(const char* filename);
 
 	void ClearFragments();
 };

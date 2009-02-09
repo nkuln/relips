@@ -3,8 +3,8 @@
 #include "Note.h"
 #include "ResultGameState.h"
 #include "ResultStateParam.h"
-#define DEFAULT_RELIPS	"milepiano.relips" 
-#define DEFAULT_PLAY	"milepiano.mp3"
+#include "PlayStateParam.h"
+
 #define CUSTOM_SHININESS	1
 #define CUSTOM_DIFFUSE		2
 #define CUSTOM_SPECULAR		3
@@ -77,7 +77,7 @@ void PlayState::Initialize()
 	GETOVERLAY(scoreOverlay,"ScoreOverlay");
 	scoreOverlay->show();
 
-	m_stage = new Stage(DEFAULT_RELIPS);
+	m_stage = new Stage(static_cast<PlayStateParam *>(m_param)->Filename().c_str());
 	m_queue = new deque<Fragment *>();
 
 	// Setup Scene
@@ -428,7 +428,9 @@ void PlayState::BassInitAndPlay()
 	BOOL ismod;
 	QWORD pos;
 
-	if(m_playChan = BASS_StreamCreateFile(FALSE, DEFAULT_PLAY, 0, 0, BASS_STREAM_PRESCAN | BASS_STREAM_AUTOFREE)){
+	if(m_playChan = BASS_StreamCreateFile(FALSE,
+		static_cast<PlayStateParam *>(m_param)->MusicFilename().c_str(), 
+		0, 0, BASS_STREAM_PRESCAN | BASS_STREAM_AUTOFREE)){
 		pos = BASS_ChannelGetLength(m_playChan, BASS_POS_BYTE);
 		// printf("streaming file [%I64u bytes]",pos);
 	}else{

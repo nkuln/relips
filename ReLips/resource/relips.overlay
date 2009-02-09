@@ -57,20 +57,21 @@ MenuOverlay
 	
 	container Panel(MenuPanel1)
 	{
-        left 0.25
-        top 0
-        width 0.5
-        height 0.3
+        left 0.0
+        top 0.45
+        width 0.4
+        height 0.1
+
 			
 		element TextArea(DebugText1)
 		{
-			left 0
+			left 0.05
 			top 0.0
 
-			width 0.5
-			height 0.3
+			width 1.0
+			height 1.0
 
-			char_height 0.1
+			char_height 0.08
 			font_name BerlinSans32
 			caption DEBUG HERE
 		}

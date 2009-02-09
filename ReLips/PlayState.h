@@ -70,6 +70,7 @@ protected:
 	int m_lastPos;
 
 	Stage *m_stage; // current stage
+	string m_audio;
 	thisInstance m_instance;
 	deque<Fragment *> *m_queue; // temporarily store fragments
 };

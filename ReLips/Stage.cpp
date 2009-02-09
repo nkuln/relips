@@ -1,7 +1,7 @@
 #include "StdAfx.h"
 #include "Stage.h"
 
-Stage::Stage(char *filename)
+Stage::Stage(const char *filename)
 {
 	m_frags = new deque<Fragment *>();
 	LoadFromFile(filename);
@@ -21,7 +21,7 @@ void Stage::MockStage()
 	m_frags->push_back(new Fragment(700000,800000,Note::NT_B));
 }
 
-void Stage::LoadFromFile( char* filename )
+void Stage::LoadFromFile(const char* filename )
 {
 	ClearFragments();
 	FILE *fi = fopen(filename, "r");
