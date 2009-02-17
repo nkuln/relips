@@ -364,9 +364,18 @@ void StageGenerator::WriteOutputFile(char *outFile, bool *pitches, int pitches_l
 	for(deque<Fragment *>::iterator i = q.begin() ; i != q.end() ; i++)
 		delete *i;
 }
+void StageGenerator::FilterOutUnwantedFreqs(int i_start, int i_end, float voc_fft[WINDOW_SIZE])
+{
+	// filter out unwanted freqs
+	for(int i = 0 ; i < WINDOW_SIZE/2 ; i++){
+		if(i < i_start || i > i_end)
+			voc_fft[i] = 0.0;
+	}
+}
+
 bool StageGenerator::DoGenerate(char *musicFile, char* outFile){
 
-#define GEN_BITMAP 0 // To generate bitmap of spectrum or not
+#define GEN_BITMAP 1 // To generate bitmap of spectrum or not
 
 	InitializeBASS();
 
@@ -407,6 +416,10 @@ bool StageGenerator::DoGenerate(char *musicFile, char* outFile){
 	for(int i = 0 ; i < pitches_size ; i++){
 		pitches[i] = false;
 	}
+	
+	// filter only singing freqs
+	int i_start = floor(80.0 * WINDOW_SIZE / SAMPLE_RATE);
+	int i_end = ceil(1000.0 * WINDOW_SIZE / SAMPLE_RATE);
 
 #if GEN_BITMAP
 	BMP spec_voc, spec_novoc;
@@ -442,12 +455,13 @@ bool StageGenerator::DoGenerate(char *musicFile, char* outFile){
 		GetFFTAtPosition(voc_stream, voc_fft, pos);
 		GetFFTAtPosition(novoc_stream, novoc_fft, pos);
 
+		// filter out unwanted freqs
+		FilterOutUnwantedFreqs(i_start, i_end, voc_fft);
+		FilterOutUnwantedFreqs(i_start, i_end, novoc_fft);
+
 		// HPS the FFTs
 		PerformHPS(voc_fft); PerformHPS(novoc_fft);
 		Normalize(voc_fft); Normalize(novoc_fft);
-
-		int i_start = floor(80.0 * WINDOW_SIZE / SAMPLE_RATE);
-		int i_end = ceil(1000.0 * WINDOW_SIZE / SAMPLE_RATE);
 
 #if GEN_BITMAP
 		// Paint Voc
