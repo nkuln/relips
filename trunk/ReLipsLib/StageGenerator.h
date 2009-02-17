@@ -41,6 +41,8 @@ private:
 	double MedianOfFive(double n1, double n2, double n3, double n4, double n5);
 	
 	bool DoGenerate(char *musicFile, char* outFile);
+	void FilterOutUnwantedFreqs(int i_start, int i_end, float voc_fft[WINDOW_SIZE]);
+
 
 	void WriteOutputFile(char *outFile, bool *pitches, int pitches_len);
 
